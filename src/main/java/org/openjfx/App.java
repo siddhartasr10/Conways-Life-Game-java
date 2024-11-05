@@ -71,13 +71,14 @@ public class App extends Application {
                 Rectangle2D screenbox = Screen.getPrimary().getVisualBounds(); // I was using getBounds to get the screen size, getVisualBounds gets the real size.
                 var root = new StackPane(); var panel = new Pane(); var grid = new GridPane();
                 panel.setMouseTransparent(true); root.setStyle("-fx-background-color:black");
-                root.getChildren().addAll(grid, panel); panel.getChildren().add(infoLabel);
+                root.getChildren().addAll(grid, panel); panel.getChildren().add(infoLabel); //infoLabel.getStyleClass().add("stoppedText");
                 var scene = new Scene(root, screenbox.getWidth(), screenbox.getHeight()); // Once the element is stated as the root, it gets the height and width of the scene and viceversa.
                 scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm()); // that '/' is essential lol
+                infoLabel.getStyleClass().add("stoppedText");
 
                 // Don't save the alt key presses because if I alt+tab it doesnt detect the release of the alt (it isn't a big issue but anyways)
                 scene.setOnKeyPressed((e) -> {if (!pressedKeys.contains(e.getCode().getName()) && !e.getCode().getName().equals("Alt")) pressedKeys.add(e.getCode().getName()); logger.info(pressedKeys.toString());});
-                scene.setOnKeyReleased((e) -> {try{Thread.sleep(100);} catch (InterruptedException excpt) {excpt.printStackTrace();}; if (pressedKeys.contains(e.getCode().getName())) pressedKeys.remove(e.getCode().getName()); logger.info(pressedKeys.toString());});
+                scene.setOnKeyReleased((e) -> {try {Thread.sleep(100);} catch (InterruptedException excpt) {excpt.printStackTrace();}; if (pressedKeys.contains(e.getCode().getName())) pressedKeys.remove(e.getCode().getName()); logger.info(pressedKeys.toString());});
                 stage.setScene(scene); stage.centerOnScreen(); stage.show();logger.log(Level.INFO, String.format("is fullscreen: %s", stage.isFullScreen()));
 
                 // Borders take 2 pixels of width and height, so for the maximum cells calculation i'
@@ -148,10 +149,14 @@ public class App extends Application {
                                                                 case "Space":
                                                                         iterator.remove();
                                                                         logger.info("Logged space key!");
-                                                                        isGameRunning = !isGameRunning;
+                                                                        isGameRunning = !isGameRunning; infoLabel.getStyleClass().removeAll("runningText", "stoppedText");
                                                                         // if we change it from 'off' to on we need to turn it on
-                                                                        if (isGameRunning) {gameLoopAsync(gridMap); infoLabel.setText("Game is Running"); continue;}
-                                                                        infoLabel.setText("Game stopped");
+                                                                        if (isGameRunning) {
+                                                                                gameLoopAsync(gridMap); infoLabel.setText("Game is Running");
+                                                                                infoLabel.getStyleClass().add("runningText"); logger.info(infoLabel.getStyleClass().toString());
+                                                                        }
+                                                                        else {
+                                                                                infoLabel.setText("Game stopped"); infoLabel.getStyleClass().add("stoppedText");} logger.info(infoLabel.getStyleClass().toString());
                                                                 }
                                                         }});
                                         try {Thread.sleep(100);}
