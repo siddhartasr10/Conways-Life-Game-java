@@ -78,9 +78,9 @@ public class App extends Application {
                 infoLabel.getStyleClass().add("stoppedText"); genLabel.getStyleClass().add("genericText"); popLabel.getStyleClass().add("genericText");
 
                 // Don't save the alt key presses because if I alt+tab it doesnt detect the release of the alt (it isn't a big issue but anyways)
-                scene.setOnKeyPressed((e) -> {if (!pressedKeys.contains(e.getCode().getName()) && !e.getCode().getName().equals("Alt")) pressedKeys.add(e.getCode().getName()); logger.info(pressedKeys.toString());});
-                scene.setOnKeyReleased((e) -> {try {Thread.sleep(100);} catch (InterruptedException excpt) {excpt.printStackTrace();}; if (pressedKeys.contains(e.getCode().getName())) pressedKeys.remove(e.getCode().getName()); logger.info(pressedKeys.toString());});
-                stage.setScene(scene); stage.centerOnScreen(); stage.show();logger.log(Level.INFO, String.format("is fullscreen: %s", stage.isFullScreen()));
+                scene.setOnKeyPressed((e) -> {if (!pressedKeys.contains(e.getCode().getName()) && !e.getCode().getName().equals("Alt")) pressedKeys.add(e.getCode().getName());}); //logger.info(pressedKeys.toString());});
+                scene.setOnKeyReleased((e) -> {try {Thread.sleep(100);} catch (InterruptedException excpt) {excpt.printStackTrace();}; if (pressedKeys.contains(e.getCode().getName())) pressedKeys.remove(e.getCode().getName());}); //logger.info(pressedKeys.toString());});
+                stage.setScene(scene); stage.centerOnScreen(); stage.show(); //logger.log(Level.INFO, String.format("is fullscreen: %s", stage.isFullScreen()));
 
                 gridMap = populateGrid(grid, MaxCellsinHeight, MaxCellsinWidth, RWIDTH, RHEIGHT, cellBehaviour);
                 assert MaxCellsinHeight == gridMap.length && MaxCellsinWidth == gridMap[0].length; logger.log(Level.INFO, "Cells in grid are the predicted maxcellinwidth and inheight"); // logger.log(Level.INFO, String.format("total cells in width: %2s, total cells in height: %2s", new Object[] {gridMap[0].length, gridMap.length})); //logger.log(Level.INFO,String.format("Map grid: %5s", Arrays.toString(gridMap)));
@@ -144,7 +144,7 @@ public class App extends Application {
                                                                 switch (key) {
                                                                 case "Space":
                                                                         iterator.remove();
-                                                                        logger.info("Logged space key!");
+                                                                        //logger.info("Logged space key!");
                                                                         isGameRunning = !isGameRunning; infoLabel.getStyleClass().removeAll("runningText", "stoppedText");
                                                                         // if we change it from 'off' to on we need to turn it on
                                                                         if (isGameRunning) {
