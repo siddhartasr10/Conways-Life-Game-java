@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
-//import javafx.concurrent.Task; TODO: probar versiones de las versiones asíncronas como dos instancias de task.
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -26,9 +25,9 @@ import javafx.stage.Stage;
  /* Conway's life game application, modify steptime to alter the ticks per second
   * or Rwidth and height to change the cellsize */
 public class App extends Application {
-        static Logger logger = Logger.getLogger(App.class.toString()); //private int clickcounter = 0; // for debugging
-        final double RWIDTH = 30D, RHEIGHT = 30D; // rectangle size constraints. Modify to your liking. remember that stroke-width=1 so every rect has 0.5 of border.
-        final int STEPTIME = 1500; // in ms, so 2 tps, change to your liking too.
+        static Logger logger = Logger.getLogger(App.class.toString()); //private int clickcounter = 0; for debugging
+        final double RWIDTH = 30D, RHEIGHT = 30D; // rectangle size constraints. Modify to your liking. remember that stroke-width=1 so every rect has 0.5 of border in each side.
+        final int STEPTIME = 500; // in ms, so 2 tps, change to your liking too.
         Rectangle[][] gridMap; List<String> pressedKeys = new ArrayList<String>();
         Label infoLabel = new Label("Game Stopped"), genLabel = new Label("Generations: 0"), popLabel = new Label("Population: 0");
         Boolean isGameRunning = false;
