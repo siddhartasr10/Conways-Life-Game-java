@@ -20,3 +20,8 @@
     -fx-text-fill: lightgreen;
     -fx-font-size: 20px;
 }
+
+.genericText {
+    -fx-font-size: 20px;
+    -fx-text-fill: white;
+}

@@ -11,49 +11,46 @@ import java.util.logging.Logger;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Pos;
 //import javafx.concurrent.Task; TODO: probar versiones de las versiones asíncronas como dos instancias de task.
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-/* TODO: Haz que se vayan contando las generaciones en una etiqueta,
- * PREFERENTE TODO: haz los cálculos para con la resolucion y contando 1 de stroke width (2 de ancho y de alto extra por cuadrado) busca un rwidth... que -2 sea divisor de la resolución.
- * TODO: además si puedes haz que se muestre la poblacion en otra etiqueta o algo y con una tecla que
+/* PREFERENTE TODO: haz los cálculos para con la resolucion y contando 1 de stroke (0.5 por cada lado = 1+ de ancho y alto).
  * TODO: de paso añade foto en el readme del github [descrip](link)
  * */
 public class App extends Application {
-        static Logger logger = Logger.getLogger(App.class.toString());
-        private int clickcounter = 0; // for debugging
-        final int RWIDTH = 30; final int RHEIGHT = 30; // rectangle size constraints.
-        public static int STEPTIME = 500; // in milliseconds
-        Rectangle[][] gridMap;
-        static List<String> pressedKeys = new ArrayList<String>();
-        Label infoLabel = new Label("Game Stopped");
+        static Logger logger = Logger.getLogger(App.class.toString()); //private int clickcounter = 0; // for debugging
+        final double RWIDTH = 30D, RHEIGHT = 30D; // rectangle size constraints. i was using 30 not perfect size.
+        int STEPTIME = 500; // in milliseconds
+        Rectangle[][] gridMap; List<String> pressedKeys = new ArrayList<String>();
+        Label infoLabel = new Label("Game Stopped"), genLabel = new Label("Generations: 0"), popLabel = new Label("Population: 0");
         Boolean isGameRunning = false;
+        Integer generations = 0, population = 0;
 
 
         protected Consumer<Rectangle> cellBehaviour = (Rectangle r) -> {
-                logger.log(Level.INFO,String.format("Cells clicked: %3s", ++clickcounter));
-                //logger.log(Level.INFO,String.format("Estilo de la celda antes: %s", r.getStyleClass().get(0)));
+                //logger.log(Level.INFO,String.format("Cells clicked: %3s", ++clickcounter)); //logger.log(Level.INFO,String.format("Estilo de la celda antes: %s", r.getStyleClass().get(0)));
                 switch (r.getStyleClass().get(0)) {
                         case "whiteSquare":
-                                r.getStyleClass().remove(0); r.getStyleClass().add("blackSquare");
+                                r.getStyleClass().remove(0); r.getStyleClass().add("blackSquare"); population--; updatePopulation();
                                 break;
                         case "blackSquare":
-                                r.getStyleClass().remove(0); r.getStyleClass().add("whiteSquare");
+                                r.getStyleClass().remove(0); r.getStyleClass().add("whiteSquare"); population++; updatePopulation();
                                 break;
                 }
 
         };
 
-        // if the grid size is not divisible by the cell(rect) size there'll be a gap. could fix it to use colspan or rowspan to make it divisible but why. just use factors of 1920 or 1080 lol.
-        public Rectangle[][] populateGrid(GridPane grid, int maxRowCells, int maxColumnCells, int cellWidth, int cellHeight, Consumer<? super Rectangle> cellBehaviour ) {
+        // if the grid size is not divisible by the cell(rect) size there'll be a gap. could fix it to use colspan or rowspan to make it divisible but why. just use factors of 1920 or 1080.
+        public Rectangle[][] populateGrid(GridPane grid, int maxRowCells, int maxColumnCells, double cellWidth, double cellHeight, Consumer<? super Rectangle> cellBehaviour ) {
                 /* Populates a grid with cells, adding a parametrized event to the cells and saves its addresses on a 2d array */
                 Rectangle[][] gridMap = new Rectangle[maxRowCells][maxColumnCells];
                 for (int row = 0; row < maxRowCells; row++) {
@@ -69,24 +66,24 @@ public class App extends Application {
         @Override
         public void start(Stage stage) {
                 Rectangle2D screenbox = Screen.getPrimary().getVisualBounds(); // I was using getBounds to get the screen size, getVisualBounds gets the real size.
-                var root = new StackPane(); var panel = new Pane(); var grid = new GridPane();
-                panel.setMouseTransparent(true); root.setStyle("-fx-background-color:black");
-                root.getChildren().addAll(grid, panel); panel.getChildren().add(infoLabel); //infoLabel.getStyleClass().add("stoppedText");
+                final int MaxCellsinWidth = (int)Math.floor(screenbox.getWidth()/(RWIDTH)), MaxCellsinHeight = (int)Math.floor(screenbox.getHeight()/(RHEIGHT));
+                var root = new StackPane(); var vBox = new VBox(20) /*20px spacin */; var grid = new GridPane();
                 var scene = new Scene(root, screenbox.getWidth(), screenbox.getHeight()); // Once the element is stated as the root, it gets the height and width of the scene and viceversa.
                 scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm()); // that '/' is essential lol
-                infoLabel.getStyleClass().add("stoppedText");
+
+                //logger.log(Level.INFO, String.format("maxX of the screen: %5f, maxX of the grid: %5f, maxX of the scene which contains the grid: %5f \n", new Object[] {screenbox.getMaxX(),grid.getLayoutBounds().getMaxX(), scene.getWidth()})); logger.log(Level.INFO, String.format("maxY of the screen: %5f, maxY of the grid: %5f, maxY of the scene which contains the grid: %5f \n", new Object[] {screenbox.getMaxY(),grid.getLayoutBounds().getMaxY(), scene.getHeight()}));logger.log(Level.INFO, String.format("Max cells width: %5s, Max cells height: %5s", MaxCellsinWidth, MaxCellsinHeight));
+
+                vBox.setMouseTransparent(true); vBox.setAlignment(Pos.TOP_RIGHT); root.setStyle("-fx-background-color:black"); // if backgorund color isn't set borders bug
+                root.getChildren().addAll(grid, vBox); vBox.getChildren().addAll(infoLabel, genLabel, popLabel);
+                infoLabel.getStyleClass().add("stoppedText"); genLabel.getStyleClass().add("genericText"); popLabel.getStyleClass().add("genericText");
 
                 // Don't save the alt key presses because if I alt+tab it doesnt detect the release of the alt (it isn't a big issue but anyways)
                 scene.setOnKeyPressed((e) -> {if (!pressedKeys.contains(e.getCode().getName()) && !e.getCode().getName().equals("Alt")) pressedKeys.add(e.getCode().getName()); logger.info(pressedKeys.toString());});
                 scene.setOnKeyReleased((e) -> {try {Thread.sleep(100);} catch (InterruptedException excpt) {excpt.printStackTrace();}; if (pressedKeys.contains(e.getCode().getName())) pressedKeys.remove(e.getCode().getName()); logger.info(pressedKeys.toString());});
                 stage.setScene(scene); stage.centerOnScreen(); stage.show();logger.log(Level.INFO, String.format("is fullscreen: %s", stage.isFullScreen()));
 
-                // Borders take 2 pixels of width and height, so for the maximum cells calculation i'
-                final int MaxCellsinWidth= (int)Math.floor(scene.getWidth()/(RWIDTH)); final int MaxCellsinHeight= (int)Math.floor(scene.getHeight()/(RHEIGHT));
-                logger.log(Level.INFO, String.format("maxX of the screen: %5f, maxX of the grid: %5f, maxX of the scene which contains the grid: %5f \n", new Object[] {screenbox.getMaxX(),grid.getLayoutBounds().getMaxX(), scene.getWidth()})); logger.log(Level.INFO, String.format("maxY of the screen: %5f, maxY of the grid: %5f, maxY of the scene which contains the grid: %5f \n", new Object[] {screenbox.getMaxY(),grid.getLayoutBounds().getMaxY(), scene.getHeight()}));logger.log(Level.INFO, String.format("Max cells width: %5s, Max cells height: %5s", MaxCellsinWidth, MaxCellsinHeight));
                 gridMap = populateGrid(grid, MaxCellsinHeight, MaxCellsinWidth, RWIDTH, RHEIGHT, cellBehaviour);
-                assert MaxCellsinHeight == gridMap.length && MaxCellsinWidth == gridMap[0].length; logger.log(Level.INFO, "Cells in grid are the predicted maxcellinwidthandheight"); // logger.log(Level.INFO, String.format("total cells in width: %2s, total cells in height: %2s", new Object[] {gridMap[0].length, gridMap.length})); //logger.log(Level.INFO,String.format("Map grid: %5s", Arrays.toString(gridMap)));
-                // gameLoopAsync(gridMap);
+                assert MaxCellsinHeight == gridMap.length && MaxCellsinWidth == gridMap[0].length; logger.log(Level.INFO, "Cells in grid are the predicted maxcellinwidth and inheight"); // logger.log(Level.INFO, String.format("total cells in width: %2s, total cells in height: %2s", new Object[] {gridMap[0].length, gridMap.length})); //logger.log(Level.INFO,String.format("Map grid: %5s", Arrays.toString(gridMap)));
                 getInputsAsync();
         }
 
@@ -112,19 +109,19 @@ public class App extends Application {
                                 if (grid[i][j].getStyleClass().get(0).equals(dead) && neighbors == 3) {fakeGrid[i][j] = true; continue;} // get born
                                 if (grid[i][j].getStyleClass().get(0).equals(alive) && (neighbors > 3 || neighbors < 2)) {fakeGrid[i][j] = false; continue;} // death causes
                                 // if not under/over populated or born then the cells stays the same (2 or 3 neighbors and alive or != 3 and dead)
-
                         }
                 }
+
                 Platform.runLater(() -> {
                                 for (int i = 0; i < fakeGrid.length; i++) {
                                         for (int j = 0; j < fakeGrid[0].length; j++) {
                                                 if (Objects.isNull(fakeGrid[i][j])) continue; // the cells that survived didn't get added to the fakeGrid, so null is == continues alive. === nothing .
-                                                if (!fakeGrid[i][j]) {grid[i][j].getStyleClass().remove(0); grid[i][j].getStyleClass().add(dead); continue;}
-                                                grid[i][j].getStyleClass().remove(0); grid[i][j].getStyleClass().add(alive); //grid[i][j].setStyle(alive);
+                                                if (!fakeGrid[i][j]) {grid[i][j].getStyleClass().remove(0); grid[i][j].getStyleClass().add(dead); population--; continue;}
+                                                grid[i][j].getStyleClass().remove(0); grid[i][j].getStyleClass().add(alive); population++;
                                         }
                                 }
+                                updateGeneration(); updatePopulation();
                         });
-
         }
         public CompletableFuture<Void> gameLoopAsync(Rectangle[][] grid) {
                 return CompletableFuture.runAsync(() -> {
@@ -139,7 +136,6 @@ public class App extends Application {
 
         public CompletableFuture<Void> getInputsAsync() {
                 return CompletableFuture.runAsync(() -> {
-                                if (pressedKeys.contains("A")) System.out.println("A"); // DEBUG OBV
                                 while (true) {
                                         Platform.runLater(() -> {
                                                         Iterator<String> iterator = pressedKeys.iterator();
@@ -153,16 +149,22 @@ public class App extends Application {
                                                                         // if we change it from 'off' to on we need to turn it on
                                                                         if (isGameRunning) {
                                                                                 gameLoopAsync(gridMap); infoLabel.setText("Game is Running");
-                                                                                infoLabel.getStyleClass().add("runningText"); logger.info(infoLabel.getStyleClass().toString());
+                                                                                infoLabel.getStyleClass().add("runningText"); //logger.info(infoLabel.getStyleClass().toString());
+                                                                                continue;
                                                                         }
-                                                                        else {
-                                                                                infoLabel.setText("Game stopped"); infoLabel.getStyleClass().add("stoppedText");} logger.info(infoLabel.getStyleClass().toString());
-                                                                }
-                                                        }});
+                                                                        infoLabel.setText("Game stopped"); infoLabel.getStyleClass().add("stoppedText");}// logger.info(infoLabel.getStyleClass().toString());
+                                                        }
+                                                });
                                         try {Thread.sleep(100);}
                                         catch (InterruptedException e) {e.printStackTrace();}
                                 }
                         });
+        }
+        public void updatePopulation() {
+                popLabel.setText(String.format("Population: %s", population));
+        }
+        public void updateGeneration() {
+                generations++; genLabel.setText(String.format("Generations: %s", generations));
         }
 
         public static void main(String[] args) {
