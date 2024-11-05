@@ -23,12 +23,12 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-/* PREFERENTE TODO: haz los cálculos para con la resolucion y contando 1 de stroke (0.5 por cada lado = 1+ de ancho y alto).
- * TODO: de paso añade foto en el readme del github [descrip](link)
+/*
+ * TODO: añade foto en el readme del github [descrip](link)
  * */
 public class App extends Application {
         static Logger logger = Logger.getLogger(App.class.toString()); //private int clickcounter = 0; // for debugging
-        final double RWIDTH = 30D, RHEIGHT = 30D; // rectangle size constraints. i was using 30 not perfect size.
+        final double RWIDTH = 30D, RHEIGHT = 30D; // rectangle size constraints. Modify to your liking. remember that stroke-width=1 so every rect has 0.5 of border.
         int STEPTIME = 500; // in milliseconds
         Rectangle[][] gridMap; List<String> pressedKeys = new ArrayList<String>();
         Label infoLabel = new Label("Game Stopped"), genLabel = new Label("Generations: 0"), popLabel = new Label("Population: 0");
