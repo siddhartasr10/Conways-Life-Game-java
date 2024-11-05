@@ -23,17 +23,16 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-/*
- * TODO: añade foto en el readme del github [descrip](link)
- * */
+ /* Conway's life game application, modify steptime to alter the ticks per second
+  * or Rwidth and height to change the cellsize */
 public class App extends Application {
         static Logger logger = Logger.getLogger(App.class.toString()); //private int clickcounter = 0; // for debugging
         final double RWIDTH = 30D, RHEIGHT = 30D; // rectangle size constraints. Modify to your liking. remember that stroke-width=1 so every rect has 0.5 of border.
-        int STEPTIME = 500; // in milliseconds
+        final int STEPTIME = 1500; // in ms, so 2 tps, change to your liking too.
         Rectangle[][] gridMap; List<String> pressedKeys = new ArrayList<String>();
         Label infoLabel = new Label("Game Stopped"), genLabel = new Label("Generations: 0"), popLabel = new Label("Population: 0");
         Boolean isGameRunning = false;
-        Integer generations = 0, population = 0;
+        int generations = 0, population = 0;
 
 
         protected Consumer<Rectangle> cellBehaviour = (Rectangle r) -> {
