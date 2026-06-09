@@ -1,5 +1,7 @@
 # Conway's Life Game in Javafx
-![Gif showing the JavaFX application running along 17 generations with a random initial configuration that shows a conway's life game example, you can also see a text that shows if the game is stopped or not a generation counter and a population one on the right upper corner](https://s11.gifyu.com/images/SyNNe.gif)
+
+https://github.com/user-attachments/assets/5d227ed5-886c-48d5-b3e2-2688462f41fa
+
 Use the space key to pause or resume the game.
 ### **Build with:** `mvn clean javafx:run`
 
