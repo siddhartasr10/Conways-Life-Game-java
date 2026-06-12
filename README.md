@@ -1,6 +1,7 @@
 # Conway's Life Game in Javafx
 
-https://github.com/user-attachments/assets/5d227ed5-886c-48d5-b3e2-2688462f41fa
+https://github.com/user-attachments/assets/4394381f-41ef-42e8-840a-48588ea3834b
+
 
 Use the space key to pause or resume the game.
 ### **Build with:** `mvn clean javafx:run`
